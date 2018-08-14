@@ -25,6 +25,12 @@ entry test_dotprod [n] (as: [n]i32, bs: [n]i32): i32 =
 entry test_outer = linalg_i32.outer
 
 -- ==
+-- entry: test_cross
+-- input { [3,-3,1] [4,9,2] }
+-- output { [-15,-2,39] }
+entry test_cross = linalg_i32.cross
+
+-- ==
 -- entry: test_inv
 -- input { [[1.0f32, 2.0f32, 1.0f32], [2.0f32, 1.0f32, 1.0f32], [1.0f32, 1.0f32, 2.0f32]] }
 -- output { [[-0.25f32, 0.75f32, -0.25f32], [0.75f32, -0.25f32, -0.25f32], [-0.25f32, -0.25f32, 0.75f32]] }

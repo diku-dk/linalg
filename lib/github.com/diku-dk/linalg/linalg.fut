@@ -6,6 +6,8 @@ local module type linalg = {
   val dotprod [n]: [n]t -> [n]t -> t
   -- | Outer product.
   val outer [n] [m]: [n]t -> [m]t -> [n][m]t
+  -- | Cross product (only for three-element vectors).
+  val cross: [3]t -> [3]t -> [3]t
   -- | Multiply a matrix with a row vector.
   val matvecmul_row [n][m]: [n][m]t -> [m]t -> [n]t
   -- | Multiply a matrix with a column vector.
@@ -30,6 +32,11 @@ module mk_linalg (T: numeric): linalg with t = T.t = {
 
   let dotprod [n] (xs: [n]t) (ys: [n]t): t =
     T.(reduce (+) (i32 0) (map2 (*) xs ys))
+
+  let cross (xs: [3]t) (ys: [3]t): [3]t =
+    T.([xs[1]*ys[2]-xs[2]*ys[1],
+        xs[2]*ys[0]-xs[0]*ys[2],
+        xs[0]*ys[1]-xs[1]*ys[0]])
 
   let matmul [n][p][m] (xss: [n][p]t) (yss: [p][m]t): [n][m]t =
     map (\xs -> map (dotprod xs) (transpose yss)) xss
