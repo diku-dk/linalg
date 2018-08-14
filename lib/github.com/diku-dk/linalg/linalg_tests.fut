@@ -2,8 +2,8 @@
 
 import "linalg"
 
-module linalg_i32 = linalg i32
-module linalg_f32 = linalg f32
+module linalg_i32 = mk_linalg i32
+module linalg_f32 = mk_linalg f32
 
 -- ==
 -- entry: test_linalg

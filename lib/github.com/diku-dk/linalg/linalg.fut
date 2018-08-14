@@ -17,7 +17,7 @@ local module type linalg = {
 }
 
 -- | Given some numeric type, produce a linalg module.
-module linalg(T: numeric): linalg with t = T.t = {
+module mk_linalg (T: numeric): linalg with t = T.t = {
 
   type t = T.t
 

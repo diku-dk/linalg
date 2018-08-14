@@ -14,10 +14,11 @@ $ futhark-pkg sync
 ## Usage
 
 ```
-$ futharki
-> import "lib/github.com/diku-dk/sorts/radix_sort"
-> radix_sort_int i32.num_bits i32.get_bit [5,7,-1,2,-2]
-[-2i32, -1i32, 2i32, 5i32, 7i32]
+> import "lib/github.com/diku-dk/linalg/linalg"
+> module linalg_f32 = mk_linalg f32
+> linalg_f32.matmul [[1,2],[3,4]] [[5,6],[7,8]]
+[[19.0f32, 22.0f32],
+ [43.0f32, 50.0f32]]
 ```
 
 ## See also
