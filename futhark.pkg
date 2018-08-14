@@ -1,0 +1,4 @@
+package github.com/diku-dk/linalg
+
+require {
+}
