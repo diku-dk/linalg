@@ -12,6 +12,11 @@ local module type linalg = {
   val matvecmul_col [n][m]: [n][m]t -> [n]t -> [n][n]t
   -- | Multiply two matrices.
   val matmul [n][p][m]: [n][p]t -> [p][m]t -> [n][m]t
+  -- | Kronecker product of two matrices.
+  val kronecker [n][p][m]: [n][p]t -> [p][m]t -> [][]t
+  -- | Kronecker product of two matrices, but preserving the blocked
+  -- structure in the result.
+  val kronecker' [m][n][p][q]: [m][n]t -> [p][q]t -> [m][n][p][q]t
   -- | Compute the inverse of a matrix.
   val inv [n]: [n][n]t -> [n][n]t
   -- | Solve linear system.
@@ -37,6 +42,15 @@ module mk_linalg (T: numeric): linalg with t = T.t = {
 
   let matvecmul_col [n][m] (xss: [n][m]t) (ys: [n]t) =
     matmul xss (replicate m ys)
+
+  let kronecker' [m][n][p][q] (xss: [m][n]t) (yss: [p][q]t): [m][n][p][q]t =
+    map (map (\x -> map (map (T.*x)) yss)) xss
+
+  let kronecker [m][n][p][q] (xss: [m][n]t) (yss: [p][q]t): [][]t =
+    kronecker' xss yss -- [m][n][p][q]
+    |> map transpose   -- [m][p][n][q]
+    |> flatten         -- [m*p][n][q]
+    |> map flatten     -- [m*p][n*q]
 
   -- Matrix inversion is implemented with Gauss-Jordan.
   let gauss_jordan [n][m] (A: [n][m]t): [n][m]t =
