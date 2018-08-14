@@ -1,4 +1,4 @@
--- | Small library of linear algebra-ish operations.
+-- | Small library of simple linear algebra-ish operations.
 
 local module type linalg = {
   type t
