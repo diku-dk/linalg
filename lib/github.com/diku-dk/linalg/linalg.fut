@@ -4,6 +4,8 @@ local module type linalg = {
   type t
   -- | Dot product.
   val dotprod [n]: [n]t -> [n]t -> t
+  -- | Outer product.
+  val outer [n] [m]: [n]t -> [m]t -> [n][m]t
   -- | Multiply a matrix with a row vector.
   val matvecmul_row [n][m]: [n][m]t -> [m]t -> [n]t
   -- | Multiply a matrix with a column vector.
@@ -26,6 +28,9 @@ module mk_linalg (T: numeric): linalg with t = T.t = {
 
   let matmul [n][p][m] (xss: [n][p]t) (yss: [p][m]t): [n][m]t =
     map (\xs -> map (dotprod xs) (transpose yss)) xss
+
+  let outer [n][m] (xs: [n]t) (ys: [m]t): [n][m]t =
+    matmul (map (\x -> [x]) xs) [ys]
 
   let matvecmul_row [n][m] (xss: [n][m]t) (ys: [m]t) =
     map (dotprod ys) xss

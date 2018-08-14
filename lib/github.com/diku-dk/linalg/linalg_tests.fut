@@ -6,14 +6,23 @@ module linalg_i32 = mk_linalg i32
 module linalg_f32 = mk_linalg f32
 
 -- ==
--- entry: test_linalg
+-- entry: test_dotprod
 -- input { [0]   [0] }
 -- output { 0 }
 -- input { [1,2,3] [4,5,6] }
 -- output { 32 }
 
-entry test_linalg [n] (as: [n]i32, bs: [n]i32): i32 =
+entry test_dotprod [n] (as: [n]i32, bs: [n]i32): i32 =
   linalg_i32.dotprod as bs
+
+-- ==
+-- entry: test_outer
+-- input { [1,2,3] [5,2,3] }
+-- output { [[5, 2, 3],
+--           [10, 4, 6],
+--           [15, 6, 9]] }
+
+entry test_outer = linalg_i32.outer
 
 -- ==
 -- entry: test_inv
