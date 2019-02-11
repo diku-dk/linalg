@@ -7,8 +7,8 @@ that's missing.
 ## Installation
 
 ```
-$ futhark-pkg add github.com/diku-dk/linalg
-$ futhark-pkg sync
+$ futhark pkg add github.com/diku-dk/linalg
+$ futhark pkg sync
 ```
 
 ## Usage
