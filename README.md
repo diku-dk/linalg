@@ -1,4 +1,4 @@
-# Linear algebra library for Futhark
+# Linear algebra library for Futhark [![Build Status](https://travis-ci.org/diku-dk/linalg.svg?branch=master)](https://travis-ci.org/diku-dk/linalg) [![Documentation](https://futhark-lang.org/pkgs/github.com/diku-dk/linalg/status.svg)](https://futhark-lang.org/pkgs/github.com/diku-dk/linalg/latest/)
 
 A small collection of linear algebra operations written in Futhark.
 There's not a lot here yet; please open an issue if you need something
