@@ -1,5 +1,9 @@
 -- | Small library of simple linear algebra-ish operations.
 
+-- | The result of applying `mk_linalg`@term.  Note that this module
+-- type is declared `local`, which means you cannot directly reference
+-- it by name from outside.  This is because it is not a stable
+-- interface, as we may add new members in minor versions.
 local module type linalg = {
   type t
   -- | Dot product.
@@ -25,8 +29,24 @@ local module type linalg = {
   val ols [n][m]: [n][m]t -> [n]t -> [m]t
 }
 
+-- An algebraic
+-- [field](https://en.wikipedia.org/wiki/Field_(mathematics)), with
+-- some added things. The `mk_linalg` module takes one of these as
+-- arguments.  The builtin modules `f32`@term and `f64`@term satisfy
+-- this interface.
+module type field = {
+  type t
+
+  val +: t -> t -> t
+  val -: t -> t -> t
+  val *: t -> t -> t
+  val /: t -> t -> t
+
+  val i32: i32 -> t
+}
+
 -- | Given some numeric type, produce a linalg module.
-module mk_linalg (T: numeric): linalg with t = T.t = {
+module mk_linalg (T: field): linalg with t = T.t = {
 
   type t = T.t
 
