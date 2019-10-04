@@ -73,11 +73,14 @@ module mk_linalg (T: field): linalg with t = T.t = {
   let kronecker' [m][n][p][q] (xss: [m][n]t) (yss: [p][q]t): [m][n][p][q]t =
     map (map (\x -> map (map (T.*x)) yss)) xss
 
+  let flatten_to [n][m] 't k (xs: [n][m]t): [k]t =
+    flatten xs : [k]t
+
   let kronecker [m][n][p][q] (xss: [m][n]t) (yss: [p][q]t): [][]t =
-    kronecker' xss yss -- [m][n][p][q]
-    |> map transpose   -- [m][p][n][q]
-    |> flatten         -- [m*p][n][q]
-    |> map flatten     -- [m*p][n*q]
+    kronecker' xss yss        -- [m][n][p][q]
+    |> map transpose          -- [m][p][n][q]
+    |> flatten                -- [m*p][n][q]
+    |> map (flatten_to (n*q)) -- [m*p][n*q]
 
   -- Matrix inversion is implemented with Gauss-Jordan.
   let gauss_jordan [n][m] (A: [n][m]t): [n][m]t =
@@ -94,12 +97,13 @@ module mk_linalg (T: field): linalg with t = T.t = {
 
   let inv [n] (A: [n][n]t): [n][n]t =
     -- Pad the matrix with the identity matrix.
+    let twon = 2*n
     let Ap = map2 (\row i ->
                     map (\j -> if j < n then unsafe( row[j] )
                                      else if j == n+i
                                           then T.i32 1
                                           else T.i32 0
-                        ) (iota (2*n))
+                        ) (iota twon)
                   ) A (iota n)
     let Ap' = gauss_jordan Ap
     -- Drop the identity matrix at the front.
