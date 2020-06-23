@@ -5,6 +5,7 @@
 -- it by name from outside.  This is because it is not a stable
 -- interface, as we may add new members in minor versions.
 local module type linalg = {
+  -- | The scalar type.
   type t
   -- | Dot product.
   val dotprod [n]: [n]t -> [n]t -> t
