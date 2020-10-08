@@ -79,16 +79,13 @@ module mk_linalg (T: field): linalg with t = T.t = {
   let kronecker' [m][n][p][q] (xss: [m][n]t) (yss: [p][q]t): [m][n][p][q]t =
     map (map (\x -> map (map (T.*x)) yss)) xss
 
-  let flatten_to [n][m] 't (nm: i32) (xs: [n][m]t): [nm]t =
-    flatten xs :> [nm]t
-
   let kronecker [m][n][p][q] (xss: [m][n]t) (yss: [p][q]t): [][]t =
     kronecker' xss yss        -- [m][n][p][q]
     |> map transpose          -- [m][p][n][q]
     |> flatten                -- [m*p][n][q]
     |> map (flatten_to (n*q)) -- [m*p][n*q]
 
-  let indices_from [n] 't (x: i32) (arr: [n]t) =
+  let indices_from [n] 't (x: i64) (arr: [n]t) =
     zip arr (map (+x) (iota n))
 
   let argmax arr =
@@ -103,7 +100,7 @@ module mk_linalg (T: field): linalg with t = T.t = {
 
   -- Matrix inversion is implemented with Gauss-Jordan.
   let gauss_jordan [m] [n] (A:[m][n]t) =
-    loop A for i < i32.min m n do
+    loop A for i < i64.min m n do
     -- Find nonzero value.
     let j = A[i:,i] |> map T.abs |> argmax |> (.1) |> (+i)
     let f = T.((i32 1-A[i,i]) / A[j,i])
