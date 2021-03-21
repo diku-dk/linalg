@@ -28,21 +28,21 @@ module mk_block_householder (T: ordered_field) : {
   val qr [m][n] : (block_size: i64) -> (A: [m][n]T.t) -> ([m][m]T.t, [m][n]T.t)
 } = {
   let dotprod [n] (xs: [n]T.t) (ys: [n]T.t): T.t =
-    reduce (T.+) (T.i32 0) (map2 (T.*) xs ys)
+    reduce (T.+) (T.i64 0) (map2 (T.*) xs ys)
 
   let matvecmul_row [n][m] (xss: [n][m]T.t) (ys: [m]T.t) =
     map (\xs -> dotprod ys xs) xss
 
   let identity (n: i64): [n][n]T.t =
-    tabulate_2d n n (\i j -> if j == i then T.i32 1 else T.i32 0)
+    tabulate_2d n n (\i j -> if j == i then T.i64 1 else T.i64 0)
 
-  let sqrt x = T.(x ** (i32 1 / i32 2))
+  let sqrt x = T.(x ** (i64 1 / i64 2))
 
   let house [d] (x: [d]T.t): (*T.t, *T.t) =
     let dot = dotprod x x
     let v0 = T.(x[0] - sqrt dot)
     let dot' = T.(dot - x[0]*x[0] + v0*v0)
-    let beta = T.(if dot' != i32 0 then i32 2/dot' else i32 0)
+    let beta = T.(if dot' != i64 0 then i64 2/dot' else i64 0)
     in (copy v0, copy beta)
 
   let matmul [n][p][m] (xss: [n][p]T.t) (yss: [p][m]T.t): *[n][m]T.t =
@@ -67,8 +67,8 @@ module mk_block_householder (T: ordered_field) : {
     let (Q,R) =
       loop (Q,A) = copy (identity m, A) for k in 0..<(n/r) do
       let s = k * r
-      let V = replicate m (replicate r (T.i32 0))
-      let Bs = replicate r (T.i32 0)
+      let V = replicate m (replicate r (T.i64 0))
+      let Bs = replicate r (T.i64 0)
 
       let (Bs, V, A) =
         loop (Bs, V, A) for j in 0..<r do
@@ -86,8 +86,8 @@ module mk_block_householder (T: ordered_field) : {
         let Bs[j] = B
         in (Bs, V, A)
 
-      let Y = replicate r (replicate m (T.i32 0))
-      let W = replicate r (replicate m (T.i32 0))
+      let Y = replicate r (replicate m (T.i64 0))
+      let W = replicate r (replicate m (T.i64 0))
       let Y[0] = V[:, 0]
       let W[0] = vecmul_scalar Y[0] (T.neg Bs[0])
 
@@ -110,7 +110,7 @@ module mk_block_householder (T: ordered_field) : {
       let QWY = matmul Q_block WY
       let Q[:, s:] = matadd Q_block QWY
       in (Q,A)
-    in (Q, zero_below_main_diag (T.i32 0) R)
+    in (Q, zero_below_main_diag (T.i64 0) R)
 }
 
 -- | QR decomposition with the Gram-Schmidt process.  Note: Very
@@ -119,7 +119,7 @@ module mk_gram_schmidt (T: ordered_field) : {
   val qr [m][n] : (A: [m][n]T.t) -> ([m][m]T.t, [m][n]T.t)
 } = {
   let dotprod [n] (xs: [n]T.t) (ys: [n]T.t): T.t =
-    reduce (T.+) (T.i32 0) (map2 (T.*) xs ys)
+    reduce (T.+) (T.i64 0) (map2 (T.*) xs ys)
 
   let matmul [n][p][m] (xss: [n][p]T.t) (yss: [p][m]T.t): *[n][m]T.t =
     map (\xs -> map (dotprod xs) (transpose yss)) xss
@@ -136,17 +136,17 @@ module mk_gram_schmidt (T: ordered_field) : {
   let matvecmul_col [m][n] (xss: [n][m]T.t) (ys: [m]T.t) =
     map (\xs -> map2 (T.*) xs ys) xss
 
-  let sqrt x = T.(x ** (i32 1 / i32 2))
+  let sqrt x = T.(x ** (i64 1 / i64 2))
 
   let vector_length [m] (xs: [m]T.t): T.t =
-    let vector_sum = reduce (T.+) (T.i32 0) (map (\x -> (x T.* x)) xs)
+    let vector_sum = reduce (T.+) (T.i64 0) (map (\x -> (x T.* x)) xs)
     in sqrt vector_sum
 
   let sum_row [m][n] (xss: [m][n]T.t) =
-      map (\xs -> reduce (T.+) (T.i32 0) xs) xss
+      map (\xs -> reduce (T.+) (T.i64 0) xs) xss
 
   let qr [m][n] (A: [m][n]T.t): (*[m][m]T.t, *[m][n]T.t) =
-    let Q = replicate m (replicate m (T.i32 0))
+    let Q = replicate m (replicate m (T.i64 0))
     let Q[:,0] = vecdiv_scalar A[:,0] (vector_length A[:,0])
     let Q =
       loop Q for i in 1..<(n) do
@@ -158,5 +158,5 @@ module mk_gram_schmidt (T: ordered_field) : {
       let Q[:,i] = vecdiv_scalar Q[:,i] (vector_length Q[:,i])
       in Q
     let R = matmul (transpose Q) A
-    in (Q, zero_below_main_diag (T.i32 0) R)
+    in (Q, zero_below_main_diag (T.i64 0) R)
 }
