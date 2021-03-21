@@ -42,6 +42,7 @@ module type field = {
   val -: t -> t -> t
   val *: t -> t -> t
   val /: t -> t -> t
+  val **: t -> t -> t
 
   val neg: t -> t
   val <: t -> t -> bool
@@ -49,6 +50,18 @@ module type field = {
   val i32: i32 -> t
   val abs: t -> t
   val fma: t -> t -> t -> t
+}
+
+-- A field extended with an ordering relation.
+module type ordered_field = {
+  include field
+
+  val ==: t -> t -> bool
+  val <: t -> t -> bool
+  val >: t -> t -> bool
+  val <=: t -> t -> bool
+  val >=: t -> t -> bool
+  val !=: t -> t -> bool
 }
 
 -- | Given some numeric type, produce a linalg module.
