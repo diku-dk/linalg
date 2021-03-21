@@ -12,17 +12,9 @@ let matprod = map2 (map2 (f64.*))
 let matmean [m][n] (xss: [m][n]f64) =
   (f64.sum (map f64.sum xss)) / f64.i64 (m*n)
 
-let rmse [m][n] (A: [m][n]f64) (k: i64) (max_iter: i64) (tol:f64): f64 =
-  let (W,H, n_iter) = nmf A (m) max_iter tol
-  let A2 = linalg64.matmul W H
-  let E = matsub A A2
-  let SQE = matprod E E
-  let MSE = matmean SQE
-  in f64.sqrt MSE
-
 --Tests NMF and checks whether the approximated matrice has a norm close to the original matrix
 entry nmf_test [m][n] (A : [m][n]f64) (max_iter: i64) (tol: f64) (test_tol : f64) : bool =
-  let (W,H, n_iter) = nmf A (m+n) max_iter tol
+  let (W,H,_) = nmf A (m+n) max_iter tol
   let A2 = linalg64.matmul W H
   in nmf64.frob_norm A - nmf64.frob_norm A2 < test_tol
 
