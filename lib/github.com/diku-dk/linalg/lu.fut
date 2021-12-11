@@ -7,10 +7,10 @@ module mk_lu(T: float) : {
   val lu [m] : (block_size: i64) -> (mat: [m][m]T.t) -> [m][m]T.t
 } = {
 
-let dotprod [n] (a: [n]T.t) (b: [n]T.t): T.t =
+def dotprod [n] (a: [n]T.t) (b: [n]T.t): T.t =
   map2 (T.*) a b |> reduce (T.+) (T.i64 0)
 
-let lud_diagonal [b] (a: [b][b]T.t): *[b][b]T.t =
+def lud_diagonal [b] (a: [b][b]T.t): *[b][b]T.t =
   map (\mat ->
          let mat = copy mat in
          loop (mat: *[b][b]T.t) for i < b-1 do
@@ -31,7 +31,7 @@ let lud_diagonal [b] (a: [b][b]T.t): *[b][b]T.t =
       (unflatten (opaque 1) b a)
   |> head
 
-let lud_perimeter_upper [m][b] (diag: [b][b]T.t, a0s: [m][b][b]T.t): *[m][b][b]T.t =
+def lud_perimeter_upper [m][b] (diag: [b][b]T.t, a0s: [m][b][b]T.t): *[m][b][b]T.t =
     let a1s = map transpose a0s in
     let a2s =
         map (map (\row0 ->
@@ -43,7 +43,7 @@ let lud_perimeter_upper [m][b] (diag: [b][b]T.t, a0s: [m][b][b]T.t): *[m][b][b]T
             a1s
     in map transpose a2s
 
-let lud_perimeter_lower [b][m] (diag: [b][b]T.t, mat: [m][b][b]T.t): *[m][b][b]T.t =
+def lud_perimeter_lower [b][m] (diag: [b][b]T.t, mat: [m][b][b]T.t): *[m][b][b]T.t =
   map (map (\row0 ->
               loop row = copy row0 for j < b do
               let sum = loop sum=T.i64 0 for k < j do
@@ -52,7 +52,7 @@ let lud_perimeter_lower [b][m] (diag: [b][b]T.t, mat: [m][b][b]T.t): *[m][b][b]T
               in  row))
       mat
 
-let lud_internal [m][b] (top_per: [m][b][b]T.t,
+def lud_internal [m][b] (top_per: [m][b][b]T.t,
                          lft_per: [m][b][b]T.t,
                          mat_slice: [m][m][b][b]T.t): *[m][m][b][b]T.t =
   let top_slice = map transpose top_per in
@@ -68,10 +68,10 @@ let lud_internal [m][b] (top_per: [m][b][b]T.t,
             mat_arr top_slice)
       mat_slice lft_per
 
-let pad_to [n] 'a (m: i64) (x: a) (arr: [n]a) : [m]a =
+def pad_to [n] 'a (m: i64) (x: a) (arr: [n]a) : [m]a =
   arr ++ replicate (m - n) x :> [m]a
 
-let lu [m] (block_size: i64) (mat: [m][m]T.t): [m][m]T.t =
+def lu [m] (block_size: i64) (mat: [m][m]T.t): [m][m]T.t =
   let b = block_size
   let num_blocks = (m+b-1) / b -- rounding up
   let n = b * num_blocks

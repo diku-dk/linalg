@@ -22,46 +22,46 @@ module rng_engine = minstd_rand
 module rand_T = normal_distribution T rng_engine
 module norm_dist = normal_distribution T minstd_rand
 
-let sum = reduce (T.+) (T.i64 0)
+def sum = reduce (T.+) (T.i64 0)
 
-let dotprod [n] (xs: [n]T.t) (ys: [n]T.t): T.t =
+def dotprod [n] (xs: [n]T.t) (ys: [n]T.t): T.t =
   sum (map2 (T.*) xs ys)
 
-let matmul [n][p][m] (xss: [n][p]T.t) (yss: [p][m]T.t): *[n][m]T.t =
+def matmul [n][p][m] (xss: [n][p]T.t) (yss: [p][m]T.t): *[n][m]T.t =
   map (\xs -> map (dotprod xs) (transpose yss)) xss
 
-let matmul_scalar [m][n] (xss: [m][n]T.t) (k: T.t): *[m][n]T.t =
+def matmul_scalar [m][n] (xss: [m][n]T.t) (k: T.t): *[m][n]T.t =
   map (map (\x -> x T.* k)) xss
 
-let matdiv_entrywise [m][n] (xss: [m][n]T.t) (yss: [m][n]T.t): *[m][n]T.t =
+def matdiv_entrywise [m][n] (xss: [m][n]T.t) (yss: [m][n]T.t): *[m][n]T.t =
   map2 (map2 (T./)) xss yss
 
-let matmul_entrywise [m][n] (xss: [m][n]T.t) (yss: [m][n]T.t): *[m][n]T.t =
+def matmul_entrywise [m][n] (xss: [m][n]T.t) (yss: [m][n]T.t): *[m][n]T.t =
   map2 (map2 (T.*)) xss yss
 
-let matsub [m][n] (xss: [m][n]T.t) (yss: [m][n]T.t): *[m][n]T.t =
+def matsub [m][n] (xss: [m][n]T.t) (yss: [m][n]T.t): *[m][n]T.t =
   map2 (\xs ys -> map2 (T.-) xs ys) xss yss
 
-let matmean [m][n] (xss: [m][n]T.t): T.t =
+def matmean [m][n] (xss: [m][n]T.t): T.t =
   (sum (map (\x -> reduce (T.+) (T.i64 0) x) xss)) T./ T.i64(m*n)
 
-let sqrt x = T.(x ** (i64 1 / i64 2))
+def sqrt x = T.(x ** (i64 1 / i64 2))
 
-let frob_norm [m][n] (xss: [m][n]T.t): T.t =
+def frob_norm [m][n] (xss: [m][n]T.t): T.t =
   let abs_matrix = map(map (\x -> x T.* x)) xss
   let matrix_sum = sum (map sum abs_matrix)
   in sqrt matrix_sum
 
-let stream (n: i64) (low: T.t) (high: T.t) =
+def stream (n: i64) (low: T.t) (high: T.t) =
   let rng_state = rng_engine.rng_from_seed [123]
   let rng_states = rng_engine.split_rng n rng_state
   let (_,rng) = unzip (map (norm_dist.rand {mean = low, stddev = high}) rng_states)
   in rng
 
-let stream2d (m: i64) (n: i64) (low: T.t) (high: T.t) =
+def stream2d (m: i64) (n: i64) (low: T.t) (high: T.t) =
   unflatten m n (stream (n * m) low high)
 
-let random_init [m][n] (A: [m][n]T.t) (k: i64): (*[m][k]T.t, *[k][n]T.t) =
+def random_init [m][n] (A: [m][n]T.t) (k: i64): (*[m][k]T.t, *[k][n]T.t) =
   let avg = sqrt T.(matmean A / i64(k))
   let W = matmul_scalar (stream2d m k (T.i64 0) (T.i64 1)) avg
   let H = matmul_scalar (stream2d k n (T.i64 0) (T.i64 1)) avg
@@ -69,7 +69,7 @@ let random_init [m][n] (A: [m][n]T.t) (k: i64): (*[m][k]T.t, *[k][n]T.t) =
   let H_abs = map(map T.abs) H
   in (W_abs, H_abs)
 
-let nmf [m][n] (A: [m][n]T.t) (k: i64) (max_iter: i64) (tol: T.t): ([m][k]T.t, [k][n]T.t, i64) =
+def nmf [m][n] (A: [m][n]T.t) (k: i64) (max_iter: i64) (tol: T.t): ([m][k]T.t, [k][n]T.t, i64) =
   let (W, H) = random_init A k
   let init_norm = frob_norm(matsub A (matmul W H))
   let (W, H, n_iter, _, _, _) =

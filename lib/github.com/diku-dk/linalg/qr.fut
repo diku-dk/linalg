@@ -16,7 +16,7 @@ import "linalg"
 -- particular don't properly have _actual_ zeroes below the diagonal
 -- (but they'll be close!).  So, we force them to be.
 local
-let zero_below_main_diag [n][m] 't (zero: t) (R: [m][n]t): [m][n]t =
+def zero_below_main_diag [n][m] 't (zero: t) (R: [m][n]t): [m][n]t =
   map2 (\i -> map2 (\j x -> if j < i then zero else x) (iota n))
        (iota m) R
 
@@ -27,43 +27,43 @@ let zero_below_main_diag [n][m] 't (zero: t) (R: [m][n]t): [m][n]t =
 module mk_block_householder (T: ordered_field) : {
   val qr [m][n] : (block_size: i64) -> (A: [m][n]T.t) -> ([m][m]T.t, [m][n]T.t)
 } = {
-  let dotprod [n] (xs: [n]T.t) (ys: [n]T.t): T.t =
+  def dotprod [n] (xs: [n]T.t) (ys: [n]T.t): T.t =
     reduce (T.+) (T.i64 0) (map2 (T.*) xs ys)
 
-  let matvecmul_row [n][m] (xss: [n][m]T.t) (ys: [m]T.t) =
+  def matvecmul_row [n][m] (xss: [n][m]T.t) (ys: [m]T.t) =
     map (\xs -> dotprod ys xs) xss
 
-  let identity (n: i64): [n][n]T.t =
+  def identity (n: i64): [n][n]T.t =
     tabulate_2d n n (\i j -> if j == i then T.i64 1 else T.i64 0)
 
-  let sqrt x = T.(x ** (i64 1 / i64 2))
+  def sqrt x = T.(x ** (i64 1 / i64 2))
 
-  let house [d] (x: [d]T.t): (*T.t, *T.t) =
+  def house [d] (x: [d]T.t): (*T.t, *T.t) =
     let dot = dotprod x x
     let v0 = T.(x[0] - sqrt dot)
     let dot' = T.(dot - x[0]*x[0] + v0*v0)
     let beta = T.(if dot' != i64 0 then i64 2/dot' else i64 0)
     in (copy v0, copy beta)
 
-  let matmul [n][p][m] (xss: [n][p]T.t) (yss: [p][m]T.t): *[n][m]T.t =
+  def matmul [n][p][m] (xss: [n][p]T.t) (yss: [p][m]T.t): *[n][m]T.t =
     map (\xs -> map (\ys -> #[sequential] dotprod xs ys) (transpose yss)) xss
 
-  let outer [n][m] (xs: [n]T.t) (ys: [m]T.t): *[n][m]T.t =
+  def outer [n][m] (xs: [n]T.t) (ys: [m]T.t): *[n][m]T.t =
     map (\x -> map (\y -> x T.* y) ys) xs
 
-  let matsub [m][n] (xss: [m][n]T.t) (yss: [m][n]T.t): *[m][n]T.t =
+  def matsub [m][n] (xss: [m][n]T.t) (yss: [m][n]T.t): *[m][n]T.t =
     map2 (\xs ys -> map2 (T.-) xs ys) xss yss
 
-  let matadd [m][n] (xss: [m][n]T.t) (yss: [m][n]T.t): *[m][n]T.t =
+  def matadd [m][n] (xss: [m][n]T.t) (yss: [m][n]T.t): *[m][n]T.t =
     map2 (map2 (T.+)) xss yss
 
-  let matmul_scalar [m][n] (xss: [m][n]T.t) (k: T.t): *[m][n]T.t =
+  def matmul_scalar [m][n] (xss: [m][n]T.t) (k: T.t): *[m][n]T.t =
     map (map (T.* k)) xss
 
-  let vecmul_scalar [m] (xs: [m]T.t) (k: T.t): *[m]T.t =
+  def vecmul_scalar [m] (xs: [m]T.t) (k: T.t): *[m]T.t =
     map (T.* k) xs
 
-  let qr [m][n] (r: i64) (A: [m][n]T.t): ([m][m]T.t, [m][n]T.t) =
+  def qr [m][n] (r: i64) (A: [m][n]T.t): ([m][m]T.t, [m][n]T.t) =
     let (Q,R) =
       loop (Q,A) = copy (identity m, A) for k in 0..<(n/r) do
       let s = k * r
@@ -118,34 +118,34 @@ module mk_block_householder (T: ordered_field) : {
 module mk_gram_schmidt (T: ordered_field) : {
   val qr [m][n] : (A: [m][n]T.t) -> ([m][m]T.t, [m][n]T.t)
 } = {
-  let dotprod [n] (xs: [n]T.t) (ys: [n]T.t): T.t =
+  def dotprod [n] (xs: [n]T.t) (ys: [n]T.t): T.t =
     reduce (T.+) (T.i64 0) (map2 (T.*) xs ys)
 
-  let matmul [n][p][m] (xss: [n][p]T.t) (yss: [p][m]T.t): *[n][m]T.t =
+  def matmul [n][p][m] (xss: [n][p]T.t) (yss: [p][m]T.t): *[n][m]T.t =
     map (\xs -> map (dotprod xs) (transpose yss)) xss
 
-  let outer [n][m] (xs: [n]T.t) (ys: [m]T.t): *[n][m]T.t =
+  def outer [n][m] (xs: [n]T.t) (ys: [m]T.t): *[n][m]T.t =
     map (\x -> map (\y -> x T.* y) ys) xs
 
-  let vecdiv_scalar [m] (xs: [m]T.t) (k: T.t): *[m]T.t =
+  def vecdiv_scalar [m] (xs: [m]T.t) (k: T.t): *[m]T.t =
     map (T./ k) xs
 
-  let vecmin [n] (xs: [n]T.t) (ys: [n]T.t): *[n]T.t =
+  def vecmin [n] (xs: [n]T.t) (ys: [n]T.t): *[n]T.t =
     map2 (T.-) xs ys
 
-  let matvecmul_col [m][n] (xss: [n][m]T.t) (ys: [m]T.t) =
+  def matvecmul_col [m][n] (xss: [n][m]T.t) (ys: [m]T.t) =
     map (\xs -> map2 (T.*) xs ys) xss
 
-  let sqrt x = T.(x ** (i64 1 / i64 2))
+  def sqrt x = T.(x ** (i64 1 / i64 2))
 
-  let vector_length [m] (xs: [m]T.t): T.t =
+  def vector_length [m] (xs: [m]T.t): T.t =
     let vector_sum = reduce (T.+) (T.i64 0) (map (\x -> (x T.* x)) xs)
     in sqrt vector_sum
 
-  let sum_row [m][n] (xss: [m][n]T.t) =
+  def sum_row [m][n] (xss: [m][n]T.t) =
       map (\xs -> reduce (T.+) (T.i64 0) xs) xss
 
-  let qr [m][n] (A: [m][n]T.t): (*[m][m]T.t, *[m][n]T.t) =
+  def qr [m][n] (A: [m][n]T.t): (*[m][m]T.t, *[m][n]T.t) =
     let Q = replicate m (replicate m (T.i64 0))
     let Q[:,0] = vecdiv_scalar A[:,0] (vector_length A[:,0])
     let Q =

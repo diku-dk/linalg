@@ -4,12 +4,12 @@ import "linalg"
 module nmf64 = mk_nmf f64
 module linalg64 = mk_linalg f64
 
-let nmf = nmf64.nmf
+def nmf = nmf64.nmf
 
-let matsub = map2 (map2 (f64.-))
-let matprod = map2 (map2 (f64.*))
+def matsub = map2 (map2 (f64.-))
+def matprod = map2 (map2 (f64.*))
 
-let matmean [m][n] (xss: [m][n]f64) =
+def matmean [m][n] (xss: [m][n]f64) =
   (f64.sum (map f64.sum xss)) / f64.i64 (m*n)
 
 --Tests NMF and checks whether the approximated matrice has a norm close to the original matrix
