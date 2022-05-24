@@ -25,7 +25,8 @@ local module type lu = {
   val forsolve  [n] : [n][n]t -> [n]t -> [n]t
   -- | Back substitution on upper part of square matrix.
   val backsolve [n] : [n][n]t -> [n]t -> [n]t
-  -- | Solve linear system using LU-decomposition.
+  -- | Solve linear system using LU-decomposition. The `block_size` is
+  -- a tunable parameter (16 and 32 are decent).
   val ols       [n] : (block_size:i64) -> [n][n]t -> [n]t -> [n]t
 }
 
