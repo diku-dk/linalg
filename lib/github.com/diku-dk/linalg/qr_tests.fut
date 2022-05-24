@@ -1,3 +1,5 @@
+-- | ignore
+
 import "qr"
 
 module block_householder = mk_block_householder f64

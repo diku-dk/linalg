@@ -1,11 +1,38 @@
--- | [LU-decomposition](https://en.wikipedia.org/wiki/LU_decomposition).
+-- | Library with operations related to
+-- [LU-decomposition](https://en.wikipedia.org/wiki/LU_decomposition)
+-- of dense matrices, including operations for decomposing a matrix
+-- `A` into a lower matrix `L` and upper matrix `U` such that `LU =
+-- A`. The module also contains functionality for solving linear
+-- systems based on LU-decomposition using forward- and
+-- back-substitution.
 
--- | The block size is a tunable parameter.  16 and 32 are decent
--- sizes.  This decomposition returns the L and U parts embedded into
--- a single square matrix.
-module mk_lu(T: float) : {
-  val lu [m] : (block_size: i64) -> (mat: [m][m]T.t) -> [m][m]T.t
-} = {
+import "linalg"
+
+-- | Module type specifying operations related to LU-decomposition.
+local module type lu = {
+  -- | The scalar type.
+  type t
+  -- | LU decomposition. The function returns the L and U parts
+  -- embedded into a single square matrix. The diagonal holds the
+  -- diagonal of U; the diagonal of L is implicitly the identity. The
+  -- `block_size` is a tunable parameter (16 and 32 are decent).
+  val lu        [m] : (block_size: i64) -> (mat: [m][m]t) -> [m][m]t
+  -- | LU decomposition. The function returns the L and U parts in
+  -- different arrays. The `block_size` is a tunable parameter (16 and
+  -- 32 are decent).
+  val lu2       [m] : (block_size: i64) -> (mat: [m][m]t) -> ([m][m]t, [m][m]t)
+  -- | Forward substitution on lower part of square matrix.
+  val forsolve  [n] : [n][n]t -> [n]t -> [n]t
+  -- | Back substitution on upper part of square matrix.
+  val backsolve [n] : [n][n]t -> [n]t -> [n]t
+  -- | Solve linear system using LU-decomposition.
+  val ols       [n] : (block_size:i64) -> [n][n]t -> [n]t -> [n]t
+}
+
+-- | LU-decomposition module parameterised over a field.
+module mk_lu (T: field) : lu with t = T.t = {
+
+type t = T.t
 
 def dotprod [n] (a: [n]T.t) (b: [n]T.t): T.t =
   map2 (T.*) a b |> reduce (T.+) (T.i64 0)
@@ -52,6 +79,8 @@ def lud_perimeter_lower [b][m] (diag: [b][b]T.t, mat: [m][b][b]T.t): *[m][b][b]T
               in  row))
       mat
 
+def sum [n] (xs:[n]T.t) = reduce (T.+) (T.i64 0) xs
+
 def lud_internal [m][b] (top_per: [m][b][b]T.t,
                          lft_per: [m][b][b]T.t,
                          mat_slice: [m][m][b][b]T.t): *[m][m][b][b]T.t =
@@ -61,7 +90,7 @@ def lud_internal [m][b] (top_per: [m][b][b]T.t,
                map2 (\mat_row lft_row ->
                       map2 (\mat_el top_row ->
                              let prods = map2 (T.*) lft_row top_row
-                             let sum = T.sum prods
+                             let sum = sum prods
                              in mat_el T.- sum)
                            mat_row top)
                    mat_blk lft)
@@ -122,4 +151,34 @@ def lu [m] (block_size: i64) (mat: [m][m]T.t): [m][m]T.t =
                              ) (iota n)
                        ) (iota n)
   in take m (map (take m) ret_padded)
+
+  def lu2 [m] (block_sz: i64) (mat: [m][m]T.t) : ([m][m]T.t, [m][m]T.t) =
+    let X = lu block_sz mat
+    let L = tabulate_2d m m (\i j ->
+			       if i == j then T.i64 1
+			       else if i > j then X[i,j]
+			       else T.i64 0)
+    let U = tabulate_2d m m (\i j ->
+			       if i <= j then X[i,j]
+			       else T.i64 0)
+    in (L,U)
+
+  def forsolve [n] (L:[n][n]t) (b:[n]t) : [n]t =
+    let y = replicate n (T.i64 0)
+    in loop y for i in 0..<n do
+       let sum = dotprod L[i,:i] (copy y[:i])
+       let y[i] = (b[i] T.- sum) T./ L[i,i]
+       in y
+
+  def backsolve [n] (U:[n][n]t) (y:[n]t) : [n]t =
+    let x = replicate n (T.i64 0)
+    in loop x for j in 0..<n do
+       let i = n - j - 1
+       let sum = dotprod U[i,i+1:n] (copy x[i+1:n])
+       let x[i] = (y[i] T.- sum) T./ U[i,i]
+       in x
+
+  def ols [n] (block_sz:i64) (A: [n][n]t) (x:[n]t) : [n]t =
+    let (L,U) = lu2 block_sz A
+    in backsolve U (forsolve L x)
 }
