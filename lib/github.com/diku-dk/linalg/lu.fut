@@ -164,18 +164,18 @@ def lu [m] (block_size: i64) (mat: [m][m]T.t): [m][m]T.t =
     in (L,U)
 
   def forsolve [n] (L:[n][n]t) (b:[n]t) : [n]t =
-    let y = replicate n (T.i64 0)
+    let y : *[n]t = replicate n (T.i64 0)
     in loop y for i in 0..<n do
-       let sum = dotprod L[i,:i] (copy y[:i])
-       let y[i] = (b[i] T.- sum) T./ L[i,i]
+       let sum = dotprod L[i,:i] y[:i]
+       let y[i] = copy(b[i] T.- sum) T./ L[i,i]
        in y
 
   def backsolve [n] (U:[n][n]t) (y:[n]t) : [n]t =
-    let x = replicate n (T.i64 0)
+    let x : *[n]t = replicate n (T.i64 0)
     in loop x for j in 0..<n do
        let i = n - j - 1
-       let sum = dotprod U[i,i+1:n] (copy x[i+1:n])
-       let x[i] = (y[i] T.- sum) T./ U[i,i]
+       let sum = dotprod U[i,i+1:n] x[i+1:n]
+       let x[i] = copy(y[i] T.- sum) T./ U[i,i]
        in x
 
   def ols [n] (block_sz:i64) (A: [n][n]t) (x:[n]t) : [n]t =
