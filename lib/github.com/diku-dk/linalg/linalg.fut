@@ -10,24 +10,24 @@ local module type linalg = {
   -- | Dot product.
   val dotprod [n]: [n]t -> [n]t -> t
   -- | Outer product.
-  val outer [n] [m]: [n]t -> [m]t -> [n][m]t
+  val outer [n] [m]: [n]t -> [m]t -> *[n][m]t
   -- | Cross product (only for three-element vectors).
   val cross: [3]t -> [3]t -> [3]t
   -- | Multiply a matrix with a row vector.
-  val matvecmul_row [n][m]: [n][m]t -> [m]t -> [n]t
+  val matvecmul_row [n][m]: [n][m]t -> [m]t -> *[n]t
   -- | Multiply a matrix with a column vector.
-  val matvecmul_col [n][m]: [n][m]t -> [n]t -> [n][n]t
+  val matvecmul_col [n][m]: [n][m]t -> [n]t -> *[n][n]t
   -- | Multiply two matrices.
-  val matmul [n][p][m]: [n][p]t -> [p][m]t -> [n][m]t
+  val matmul [n][p][m]: [n][p]t -> [p][m]t -> *[n][m]t
   -- | Kronecker product of two matrices.
-  val kronecker [n][m][p][q]: [m][n]t -> [p][q]t -> [][]t
+  val kronecker [n][m][p][q]: [m][n]t -> [p][q]t -> *[][]t
   -- | Kronecker product of two matrices, but preserving the blocked
   -- structure in the result.
-  val kronecker' [m][n][p][q]: [m][n]t -> [p][q]t -> [m][n][p][q]t
+  val kronecker' [m][n][p][q]: [m][n]t -> [p][q]t -> *[m][n][p][q]t
   -- | Compute the inverse of a matrix.
-  val inv [n]: [n][n]t -> [n][n]t
+  val inv [n]: [n][n]t -> *[n][n]t
   -- | Solve linear system.
-  val ols [n][m]: [n][m]t -> [n]t -> [m]t
+  val ols [n][m]: [n][m]t -> [n]t -> *[m]t
 }
 
 -- An algebraic
@@ -77,10 +77,10 @@ module mk_linalg (T: field): linalg with t = T.t = {
         xs[2]*ys[0]-xs[0]*ys[2],
         xs[0]*ys[1]-xs[1]*ys[0]])
 
-  def matmul [n][p][m] (xss: [n][p]t) (yss: [p][m]t): [n][m]t =
+  def matmul [n][p][m] (xss: [n][p]t) (yss: [p][m]t): *[n][m]t =
     map (\xs -> map (dotprod xs) (transpose yss)) xss
 
-  def outer [n][m] (xs: [n]t) (ys: [m]t): [n][m]t =
+  def outer [n][m] (xs: [n]t) (ys: [m]t): *[n][m]t =
     matmul (map (\x -> [x]) xs) [ys]
 
   def matvecmul_row [n][m] (xss: [n][m]t) (ys: [m]t) =
@@ -89,10 +89,10 @@ module mk_linalg (T: field): linalg with t = T.t = {
   def matvecmul_col [n][m] (xss: [n][m]t) (ys: [n]t) =
     matmul xss (replicate m ys)
 
-  def kronecker' [m][n][p][q] (xss: [m][n]t) (yss: [p][q]t): [m][n][p][q]t =
+  def kronecker' [m][n][p][q] (xss: [m][n]t) (yss: [p][q]t): *[m][n][p][q]t =
     map (map (\x -> map (map (T.*x)) yss)) xss
 
-  def kronecker [m][n][p][q] (xss: [m][n]t) (yss: [p][q]t): [][]t =
+  def kronecker [m][n][p][q] (xss: [m][n]t) (yss: [p][q]t): *[][]t =
     kronecker' xss yss        -- [m][n][p][q]
     |> map transpose          -- [m][p][n][q]
     |> flatten                -- [m*p][n][q]
@@ -123,7 +123,7 @@ module mk_linalg (T: field): linalg with t = T.t = {
                      in map2 (\x y -> if j == i then x else T.fma f x y)
                              irow A[j])
 
-  def inv [n] (A: [n][n]t): [n][n]t =
+  def inv [n] (A: [n][n]t): *[n][n]t =
     -- Pad the matrix with the identity matrix.
     let twon = 2*n
     let Ap = map2 (\row i ->
@@ -135,8 +135,8 @@ module mk_linalg (T: field): linalg with t = T.t = {
                   ) A (iota n)
     let Ap' = gauss_jordan Ap
     -- Drop the identity matrix at the front.
-    in Ap'[0:n, n:n*2] :> [n][n]t
+    in Ap'[0:n, n:n*2] :> *[n][n]t
 
-  def ols [n][m] (X: [n][m]t) (b: [n]t): [m]t =
+  def ols [n][m] (X: [n][m]t) (b: [n]t): *[m]t =
     matvecmul_row (matmul (inv (matmul (transpose X) X)) (transpose X)) b
 }
