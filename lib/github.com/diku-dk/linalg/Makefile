@@ -12,4 +12,4 @@ doc:
 
 .PHONY: clean
 clean:
-	rm -rf *~ *.c lu_tests linalg_tests nmf_tests qr_tests linalg lu qr *.actual *.expected doc
+	rm -rf *~ *.c lu_tests linalg_tests nmf_tests qr_tests linalg nmf lu qr *.actual *.expected doc
