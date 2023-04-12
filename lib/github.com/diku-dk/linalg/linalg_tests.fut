@@ -260,24 +260,24 @@ entry test_matdiag = linalg_f64.matdiag
 -- ==
 -- entry: test_todiag
 -- input {
---   [[0.0, 1.0, 2.0],
---    [3.0, 4.0, 5.0],
---    [6.0, 7.0, 8.0]]
--- }
--- output {
---   [0.0, 4.0, 8.0]
--- }
-entry test_todiag = linalg_f64.todiag
-
--- ==
--- entry: test_fromdiag
--- input {
 --   [0.0, 4.0, 8.0]
 -- }
 -- output {
 --   [[0.0, 0.0, 0.0],
 --    [0.0, 4.0, 0.0],
 --    [0.0, 0.0, 8.0]]
+-- }
+entry test_todiag = linalg_f64.todiag
+
+-- ==
+-- entry: test_fromdiag
+-- input {
+--   [[0.0, 1.0, 2.0],
+--    [3.0, 4.0, 5.0],
+--    [6.0, 7.0, 8.0]]
+-- }
+-- output {
+--   [0.0, 4.0, 8.0]
 -- }
 entry test_fromdiag = linalg_f64.fromdiag
 
@@ -293,7 +293,7 @@ entry test_fromdiag = linalg_f64.fromdiag
 --    [ 0.0       , -0.4472136 , -0.89442719],
 --    [ 0.0       , -0.89442719,  0.4472136 ]]
 -- }
-entry test_househess_Q = linalg_f64.househess >-> (.0)
+entry test_househess_Q = linalg_f64.househess >-> (.1)
 
 -- ==
 -- entry: test_househess_H
@@ -307,7 +307,7 @@ entry test_househess_Q = linalg_f64.househess >-> (.0)
 --    [-6.70820393e+00,  1.20000000e+01,  3.00000000e+00],
 --    [ 0.00000000e+00,  1.00000000e+00, -1.55001191e-15]]
 -- }
-entry test_househess_H = linalg_f64.househess >-> (.1)
+entry test_househess_H = linalg_f64.househess >-> (.0)
 
 -- ==
 -- entry: test_eig_D

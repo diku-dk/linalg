@@ -9,23 +9,26 @@ local module type linalg = {
   type t
 
   ------ CREATING MATRICES/VECTORS ------
-  -- RON
-  -- | make zero vector
+  -- | Make a zero vector.
   val veczeros : (n : i64) -> [n]t
-  -- | make ones vector
+  -- | Make a ones vector.
   val vecones : (n : i64) -> [n]t
-  -- | classic linspace function
+  -- | Create an array of n values varying linearly from the first to second argument.
   val linspace : t -> t -> (n:i64) -> [n]t
-  -- | identity matrix
+  -- | Make an identity matrix.
   val eye : (n : i64) -> [n][n]t
-  -- | make zero matrix
+  -- | Make a zero matrix.
   val matzeros : (n : i64) -> (m : i64) -> [n][m]t
-  -- | make ones matrix
+  -- | Make a ones matrix.
   val matones : (n : i64) -> (m : i64) -> [n][m]t
+  -- | Cast scalar values up into matrices (simulated broadcasting).
+  val mat [m][n] : t -> [m][n]t
+  -- | Cast integers up into matrices (simulated broadcasting).
+  val i64 [m][n] : i64 -> [m][n]t
+  -- | Cast floating point numbers up into matrices (simulated broadcasting).
+  val f64 [m][n] : f64 -> [m][n]t
 
   ------ CORE FUNCTIONS ------
-
-  -- NOT RON
   -- | Dot product.
   val dotprod [n]: [n]t -> [n]t -> t
   -- | Outer product.
@@ -38,74 +41,74 @@ local module type linalg = {
   val matvecmul_col [n][m]: [n][m]t -> [n]t -> *[n][n]t
   -- | Multiply two matrices.
   val matmul [n][p][m]: [n][p]t -> [p][m]t -> *[n][m]t
-  -- | Kronecker product of two matrices.
 
-
-  -- RON
-  -- | form a block matrix from 4 submatrices
+  -- | Form a block matrix from 4 submatrices.
   val block [m1][m2][n1][n2] : (A: [m1][n1]t) -> (B: [m1][n2]t) -> (C: [m2][n1]t) -> (D: [m2][n2]t) -> [][]t
-  -- | a general way to apply a unary operator (e.g., (neg), etc.) element-wise to a tensor
+  -- | A general way to apply a unary operator (e.g., (neg), etc.) element-wise to a matrix.
   val matunary [n][m] : (t->t) -> [n][m]t -> [n][m]t
-  -- | a general way to apply an operator (e.g., (+), (-), etc.) element-wise between two tensors
+  -- | A general way to apply an operator (e.g., (+), (-), etc.) element-wise between two matrices.
   val matop [n][m] : (t->t->t) -> [n][m]t -> [n][m]t -> [n][m]t
-  -- | a general way to apply a comparison operator (e.g., (==), (<), etc.) element-wise between two tensors
+  -- | A general way to apply a comparison operator (e.g., (==), (<), etc.) element-wise between two matrices.
   val matcomp [n][m] : (t->t->bool) -> [n][m]t -> [n][m]t -> [n][m]bool
-  -- | scale vector
+  -- | Scale a vector by some constant.
   val vecscale [n] : t -> [n]t -> *[n]t
-  -- | scale matrix
+  -- | Scale a matrix by some constant.
   val matscale [n][m] : t -> [n][m]t -> *[n][m]t
-  -- | Difference of two matrices
+  -- | Compute the difference of two matrices.
   val matsub [m][n] : [m][n]t -> [m][n]t -> *[m][n]t
-  -- | Sum of two matrices
+  -- | Compute the sum of two matrices.
   val matadd [m][n] : [m][n]t -> [m][n]t -> *[m][n]t
-  -- | compute the L2 norm of a vector
+  -- | Compute the L2 norm of a vector.
   val vecnorm [n] : [n]t -> t
-  -- | returns just diagonal of the argument
+  -- | Return a matrix containing only the diagonal of the argument.
   val matdiag [n] : [n][n]t -> [n][n]t
-  -- | return a vector of the matrix's diagonal
-  val todiag [n] : [n][n]t -> [n]t
-  -- | return a diagonal matrix using the given vector
-  val fromdiag [n] : [n]t -> [n][n]t
+  -- | Return a vector of the input matrix's diagonal.
+  val fromdiag [n] : [n][n]t -> [n]t
+  -- | Return a diagonal matrix with its diagonal being the input vector.
+  val todiag [n] : [n]t -> [n][n]t
 
-
-  -- NOT RON
+  -- | Kronecker product of two matrices.
   val kronecker [n][m][p][q]: [m][n]t -> [p][q]t -> *[][]t
   -- | Kronecker product of two matrices, but preserving the blocked
   -- structure in the result.
   val kronecker' [m][n][p][q]: [m][n]t -> [p][q]t -> *[m][n][p][q]t
   -- | Compute the inverse of a matrix.
   val inv [n]: [n][n]t -> *[n][n]t
-  -- | Solve linear system.
+  -- | Solve a linear system.
   val ols [n][m]: [n][m]t -> [n]t -> *[m]t
 
-  -- RON
-  -- | compute the hessenberg form H of input matrix and its transformation matrix Q
-  -- | returns (Q, H)
+  -- | Compute the hessenberg form H of input matrix and its transformation matrix Q. Returns (H, Q).
   val househess [n] : [n][n]t -> ([n][n]t, [n][n]t)
-  -- | eigenvalue decomposition of matrix
-  -- | returns (D, V), where D is a diagonal matrix of the eigenvalues, and the columns of V are their eigenvectors
+  -- | Compute the eigenvalue decomposition of matrix.
+  -- Returns (D, V), where D is a diagonal matrix of the eigenvalues, and the columns of V are their eigenvectors.
   val eig [n] : [n][n]t -> ([n][n]t, [n][n]t)
-  -- | square root of input matrix
+  -- | Compute the square root of the input matrix.
   val matsqrt [n] : [n][n]t -> [n][n]t
 
   ------ MATRIX OPERATORS ------
-  -- RON
   -- these comes last in this file so they don't interfere with the rest of the functions
-  -- | casting 0-d values up into matrices (simulated broadcasting)
-  val mat [m][n] : t -> [m][n]t
-  val i64 [m][n] : i64 -> [m][n]t
-  val f64 [m][n] : f64 -> [m][n]t
-  -- | short-hand matrix-level operators
+  -- short-hand matrix-level operators
+  -- | Element-wise matrix addition.
   val + [m][n] : [m][n]t -> [m][n]t -> [m][n]t
+  -- | Element-wise matrix subtraction.
   val - [m][n] : [m][n]t -> [m][n]t -> [m][n]t
+  -- | Element-wise matrix multiplication.
   val * [m][n] : [m][n]t -> [m][n]t -> [m][n]t
+  -- | Matrix multiplication.
   val ^ [m][n][p] : [m][n]t -> [n][p]t -> [m][p]t
+  -- | Element-wise absolute value.
   val abs [m][n] : [m][n]t -> [m][n]t
+  -- | Element-wise equality comparison.
   val == [m][n]: [m][n]t -> [m][n]t -> [m][n]bool
+  -- | Element-wise less-than comparison.
   val < [m][n]: [m][n]t -> [m][n]t -> [m][n]bool
+  -- | Element-wise greater-than comparison.
   val > [m][n]: [m][n]t -> [m][n]t -> [m][n]bool
+  -- | Element-wise less-than or equal comparison.
   val <= [m][n]: [m][n]t -> [m][n]t -> [m][n]bool
+  -- | Element-wise greater-than or equal comparison.
   val >= [m][n]: [m][n]t -> [m][n]t -> [m][n]bool
+  -- | Element-wise inequality comparison.
   val != [m][n]: [m][n]t -> [m][n]t -> [m][n]bool
 }
 
@@ -152,10 +155,7 @@ module mk_linalg (T: ordered_field): linalg with t = T.t = {
 
   type t = T.t
 
-
-  ------ CREATING MATRICES/VECTORS ------
   
-  --RON
   def veczeros (N) : [N]t =
     T.(map (\_ -> i64 0) (0..<N))
 
@@ -176,7 +176,6 @@ module mk_linalg (T: ordered_field): linalg with t = T.t = {
     map (\_ -> map (\_->T.i64 1) (0..<M)) (0..<N)
 
 
-  --NOT RON
   def dotprod [n] (xs: [n]t) (ys: [n]t): t =
     T.(reduce (+) (i64 0) (map2 (*) xs ys))
 
@@ -197,7 +196,6 @@ module mk_linalg (T: ordered_field): linalg with t = T.t = {
   def matvecmul_col [n][m] (xss: [n][m]t) (ys: [n]t) =
     matmul xss (replicate m ys)
 
-  --RON
   --UNLESS WE NOINLINE, THIS CAUSES COMPILATION TO HANG!!!
   #[noinline] def block [m1][m2][n1][n2] (A: [m1][n1]t) (B: [m1][n2]t) (C: [m2][n1]t) (D: [m2][n2]t) : [][]t =
     let m = m1 + m2
@@ -231,14 +229,13 @@ module mk_linalg (T: ordered_field): linalg with t = T.t = {
   def matdiag [n] (A : [n][n]t): [n][n]t =
     tabulate_2d n n (\i j -> if i == j then A[i,j] else T.i64 0)
 
-  def todiag [n] (A : [n][n]t): [n]t =
+  def fromdiag [n] (A : [n][n]t): [n]t =
     tabulate n (\i -> A[i,i])
   
-  def fromdiag [n] (x : [n]t): [n][n]t =
+  def todiag [n] (x : [n]t): [n][n]t =
     tabulate_2d n n (\i j -> if i == j then x[i] else T.i64 0)
 
 
-  --NOT RON
   def kronecker' [m][n][p][q] (xss: [m][n]t) (yss: [p][q]t): *[m][n][p][q]t =
     map (map (\x -> map (map (T.*x)) yss)) xss
 
@@ -291,7 +288,6 @@ module mk_linalg (T: ordered_field): linalg with t = T.t = {
     matvecmul_row (matmul (inv (matmul (transpose X) X)) (transpose X)) b
 
     
-  --RON
   def vhouse [n] (x: [n]t): ([n]t, t) =
     let normx = T.i64 1 T./ vecnorm x
     let x = if T.isnan normx || T.isinf normx then x else vecscale normx x --OK?
@@ -308,7 +304,7 @@ module mk_linalg (T: ordered_field): linalg with t = T.t = {
 
   --should be OK. Verified against examples computed with scipy
   def househess [n] (A : [n][n]t): ([n][n]t, [n][n]t) =
-    loop (Q, H) = (eye n, copy A) for k in 0..<(n-2) do
+    loop (H, Q) = (copy A,eye n) for k in 0..<(n-2) do
       let m = n-(k+1)
       let a = n-k
       let (v, beta) = vhouse (H[k+1:,k]) :> ([m]t, t)
@@ -318,11 +314,11 @@ module mk_linalg (T: ordered_field): linalg with t = T.t = {
       let H = H with [k+1:,k:] = matmul R (H[k+1:,k:] :> [m][a]t)
       let H = H with [:,k+1:] = matmul (H[:,k+1:] :> [n][m]t) R
       let P = (block I N (transpose N) R) :> [n][n]t
-      in (matmul Q P, H)
+      in (H, matmul Q P)
 
   --Hessenberg QR algorithm with Rayleigh quotient shift and deflation
   def eig [n] (A : [n][n]t): ([n][n]t, [n][n]t) = 
-    let (U, H) = househess (copy A)
+    let (H, U) = househess (copy A)
     let epsilon = T.f64 1e-30 --very precise
     let givens (a: t) (b: t): (t,t) =
       let denom = T.(sqrt ((a ** i64 2) + (b ** i64 2)))
@@ -379,8 +375,6 @@ module mk_linalg (T: ordered_field): linalg with t = T.t = {
     in matmul (matmul E sqrtD) (inv E)
 
 
-
-  --RON
   def mat [m][n] (v: t) : [m][n]t =
     tabulate_2d m n (\_ _ -> v)
 
