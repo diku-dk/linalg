@@ -343,9 +343,9 @@ entry test_eig_D = linalg_f64.eig >-> (.0)
 -- }
 entry test_eig X =
   let (D, V) = linalg_f64.eig X --decompose
-  let X' = linalg_f64.(V ^ D ^ inv V) --recompose
+  let X' = linalg_f64.(V `matmul` D `matmul` inv V) --recompose
   let eps = 1e-10
-  let diff = linalg_f64.(X - X')
+  let diff = linalg_f64.(X `matsub` X')
   in diff |> flatten |> all (\d -> d < eps) --check that the recomposition matches
 
 -- ==

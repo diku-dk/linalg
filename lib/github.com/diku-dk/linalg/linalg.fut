@@ -9,6 +9,7 @@ local module type linalg = {
   type t
 
   ------ CREATING MATRICES/VECTORS ------
+
   -- | Make a zero vector.
   val veczeros : (n : i64) -> [n]t
   -- | Make a ones vector.
@@ -29,6 +30,7 @@ local module type linalg = {
   val f64 [m][n] : f64 -> [m][n]t
 
   ------ CORE FUNCTIONS ------
+
   -- | Dot product.
   val dotprod [n]: [n]t -> [n]t -> t
   -- | Outer product.
@@ -85,31 +87,6 @@ local module type linalg = {
   -- | Compute the square root of the input matrix.
   val matsqrt [n] : [n][n]t -> [n][n]t
 
-  ------ MATRIX OPERATORS ------
-  -- these comes last in this file so they don't interfere with the rest of the functions
-  -- short-hand matrix-level operators
-  -- | Element-wise matrix addition.
-  val + [m][n] : [m][n]t -> [m][n]t -> [m][n]t
-  -- | Element-wise matrix subtraction.
-  val - [m][n] : [m][n]t -> [m][n]t -> [m][n]t
-  -- | Element-wise matrix multiplication.
-  val * [m][n] : [m][n]t -> [m][n]t -> [m][n]t
-  -- | Matrix multiplication.
-  val ^ [m][n][p] : [m][n]t -> [n][p]t -> [m][p]t
-  -- | Element-wise absolute value.
-  val abs [m][n] : [m][n]t -> [m][n]t
-  -- | Element-wise equality comparison.
-  val == [m][n]: [m][n]t -> [m][n]t -> [m][n]bool
-  -- | Element-wise less-than comparison.
-  val < [m][n]: [m][n]t -> [m][n]t -> [m][n]bool
-  -- | Element-wise greater-than comparison.
-  val > [m][n]: [m][n]t -> [m][n]t -> [m][n]bool
-  -- | Element-wise less-than or equal comparison.
-  val <= [m][n]: [m][n]t -> [m][n]t -> [m][n]bool
-  -- | Element-wise greater-than or equal comparison.
-  val >= [m][n]: [m][n]t -> [m][n]t -> [m][n]bool
-  -- | Element-wise inequality comparison.
-  val != [m][n]: [m][n]t -> [m][n]t -> [m][n]bool
 }
 
 -- An algebraic
@@ -127,7 +104,6 @@ module type field = {
   val **: t -> t -> t
 
   val neg: t -> t
-  -- val inf: t
 
   val i64: i64 -> t
   val f64: f64 -> t
@@ -383,27 +359,5 @@ module mk_linalg (T: ordered_field): linalg with t = T.t = {
 
   def f64 [m][n] (v : f64) : [m][n]t =
     tabulate_2d m n (\_ _ -> T.f64 v)
-
-  def (+) = matop (T.+)
-
-  def (-) = matop (T.-)
-
-  def (*) = matop (T.*)
-
-  def (^) = matmul
-
-  def abs = matunary T.abs
-
-  def (==) = matcomp (T.==)
-  
-  def (<) = matcomp (T.<)
-
-  def (>) = matcomp (T.>)
-
-  def (<=) = matcomp (T.<=)
-
-  def (>=) = matcomp (T.<=)
-
-  def (!=) = matcomp (T.!=)
 
 }
