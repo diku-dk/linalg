@@ -172,8 +172,7 @@ module mk_linalg (T: ordered_field): linalg with t = T.t = {
   def matvecmul_col [n][m] (xss: [n][m]t) (ys: [n]t) =
     matmul xss (replicate m ys)
 
-  --UNLESS WE NOINLINE, THIS CAUSES COMPILATION TO HANG!!!
-  #[noinline] def block [m1][m2][n1][n2] (A: [m1][n1]t) (B: [m1][n2]t) (C: [m2][n1]t) (D: [m2][n2]t) : [][]t =
+  def block [m1][m2][n1][n2] (A: [m1][n1]t) (B: [m1][n2]t) (C: [m2][n1]t) (D: [m2][n2]t) : [][]t =
     let m = m1 + m2
     in transpose ((transpose (A ++ C :> [m][n1]t)) ++ (transpose (B ++ D :> [m][n2]t)))
 
