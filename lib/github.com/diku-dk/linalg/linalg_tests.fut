@@ -2,8 +2,6 @@
 
 import "linalg"
 
--- module linalg_i32 = mk_linalg { open i32 def fma a b c : i32 = a * b + c }
--- module linalg_f32 = mk_linalg f32
 module linalg_f64 = mk_linalg f64
 
 -- ==
