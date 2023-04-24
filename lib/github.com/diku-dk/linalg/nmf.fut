@@ -59,7 +59,7 @@ def stream (n: i64) (low: T.t) (high: T.t) =
   in rng
 
 def stream2d (m: i64) (n: i64) (low: T.t) (high: T.t) =
-  unflatten m n (stream (n * m) low high)
+  unflatten m n (stream (m * n) low high)
 
 def random_init [m][n] (A: [m][n]T.t) (k: i64): (*[m][k]T.t, *[k][n]T.t) =
   let avg = sqrt T.(matmean A / i64(k))

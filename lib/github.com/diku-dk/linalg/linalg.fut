@@ -45,7 +45,7 @@ local module type linalg = {
   val matmul [n][p][m]: [n][p]t -> [p][m]t -> *[n][m]t
 
   -- | Form a block matrix from 4 submatrices.
-  val block [m1][m2][n1][n2] : (A: [m1][n1]t) -> (B: [m1][n2]t) -> (C: [m2][n1]t) -> (D: [m2][n2]t) -> [][]t
+  val block [m1][m2][n1][n2] : (A: [m1][n1]t) -> (B: [m1][n2]t) -> (C: [m2][n1]t) -> (D: [m2][n2]t) -> [m1+m2][n1+n2]t
   -- | A general way to apply a unary operator (e.g., (neg), etc.) element-wise to a matrix.
   val matunary [n][m] : (t->t) -> [n][m]t -> [n][m]t
   -- | A general way to apply an operator (e.g., (+), (-), etc.) element-wise between two matrices.
@@ -70,7 +70,7 @@ local module type linalg = {
   val todiag [n] : [n]t -> [n][n]t
 
   -- | Kronecker product of two matrices.
-  val kronecker [n][m][p][q]: [m][n]t -> [p][q]t -> *[][]t
+  val kronecker [n][m][p][q]: [m][n]t -> [p][q]t -> *[m*p][n*q]t
   -- | Kronecker product of two matrices, but preserving the blocked
   -- structure in the result.
   val kronecker' [m][n][p][q]: [m][n]t -> [p][q]t -> *[m][n][p][q]t
@@ -172,9 +172,8 @@ module mk_linalg (T: ordered_field): linalg with t = T.t = {
   def matvecmul_col [n][m] (xss: [n][m]t) (ys: [n]t) =
     matmul xss (replicate m ys)
 
-  def block [m1][m2][n1][n2] (A: [m1][n1]t) (B: [m1][n2]t) (C: [m2][n1]t) (D: [m2][n2]t) : [][]t =
-    let m = m1 + m2
-    in transpose ((transpose (A ++ C :> [m][n1]t)) ++ (transpose (B ++ D :> [m][n2]t)))
+  def block [m1][m2][n1][n2] (A: [m1][n1]t) (B: [m1][n2]t) (C: [m2][n1]t) (D: [m2][n2]t) : [m1+m2][n1+n2]t =
+    transpose (transpose (A ++ C) ++ transpose (B ++ D))
 
   --a general way to apply an operator (e.g., (+), (-), etc.) element-wise between two tensors
   def matunary [n][m] (op: t->t) (A: [n][m]t) : [n][m]t = 
@@ -206,15 +205,14 @@ module mk_linalg (T: ordered_field): linalg with t = T.t = {
 
   def fromdiag [n] (A : [n][n]t): [n]t =
     tabulate n (\i -> A[i,i])
-  
+
   def todiag [n] (x : [n]t): [n][n]t =
     tabulate_2d n n (\i j -> if i == j then x[i] else T.i64 0)
-
 
   def kronecker' [m][n][p][q] (xss: [m][n]t) (yss: [p][q]t): *[m][n][p][q]t =
     map (map (\x -> map (map (T.*x)) yss)) xss
 
-  def kronecker [m][n][p][q] (xss: [m][n]t) (yss: [p][q]t): *[][]t =
+  def kronecker [m][n][p][q] (xss: [m][n]t) (yss: [p][q]t): *[m*p][n*q]t =
     kronecker' xss yss        -- [m][n][p][q]
     |> map transpose          -- [m][p][n][q]
     |> flatten                -- [m*p][n][q]
