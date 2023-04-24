@@ -21,12 +21,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install Futhark
-      run: |
-          wget http://futhark-lang.org/releases/futhark-nightly-linux-x86_64.tar.xz
-          tar xf futhark-nightly-linux-x86_64.tar.xz
-          (cd futhark-nightly-linux-x86_64/ && PREFIX=$HOME/.local make install)
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+    - uses: diku-dk/install-futhark@v1.1.0
+      with:
+        version: 'nightly'
 
     - run: futhark pkg sync
 
