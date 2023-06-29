@@ -56,7 +56,7 @@ def lud_diagonal [b] (a: [b][b]T.t): *[b][b]T.t =
          let row = tabulate b row_elem
          let mat[i+1] = row
          in mat)
-      (unflatten (opaque 1) b (a :> [opaque 1*b][b]T.t))
+      (unflatten (a :> [opaque 1*b][b]T.t))
   |> head
 
 def lud_perimeter_upper [m][b] (diag: [b][b]T.t, a0s: [m][b][b]T.t): *[m][b][b]T.t =
