@@ -32,12 +32,6 @@ module type linalg = {
   -- | Cast scalar values up into matrices (simulated broadcasting).
   val mat [m] [n] : t -> [m][n]t
 
-  -- | Cast integers up into matrices (simulated broadcasting).
-  val i64 [m] [n] : i64 -> [m][n]t
-
-  -- | Cast floating point numbers up into matrices (simulated broadcasting).
-  val f64 [m] [n] : f64 -> [m][n]t
-
   ------ CORE FUNCTIONS ------
 
   -- | Dot product.
@@ -100,6 +94,15 @@ module type linalg = {
   -- | Kronecker product of two matrices, but preserving the blocked
   -- structure in the result.
   val kronecker' [m] [n] [p] [q] : [m][n]t -> [p][q]t -> *[m][n][p][q]t
+}
+
+local
+-- | The result of applying `mk_ordered_linalg`@term. Note that this
+-- module type is declared `local`, which means you cannot directly
+-- reference it by name from outside. This is because it is not a
+-- stable interface, as we may add new members in minor versions.
+module type ordered_linalg = {
+  include linalg
 
   -- | Compute the inverse of a matrix.
   val inv [n] : [n][n]t -> *[n][n]t
@@ -156,7 +159,7 @@ module type ordered_field = {
 }
 
 -- | Given some numeric type, produce a linalg module.
-module mk_linalg (T: ordered_field) : linalg with t = T.t = {
+module mk_linalg (T: field) : linalg with t = T.t = {
   type t = T.t
 
   def veczeros (N) : [N]t =
@@ -252,6 +255,14 @@ module mk_linalg (T: ordered_field) : linalg with t = T.t = {
 
   def indices_from [n] 't (x: i64) (arr: [n]t) =
     zip arr (map (+ x) (iota n))
+
+  def mat [m] [n] (v: t) : [m][n]t =
+    tabulate_2d m n (\_ _ -> v)
+}
+
+-- | Produce linear algebra operations for an ordered field.
+module mk_ordered_linalg (T: ordered_field) : ordered_linalg with t = T.t = {
+  open (mk_linalg T)
 
   def argmax arr =
     reduce_comm (\(a, i) (b, j) ->
@@ -398,21 +409,10 @@ module mk_linalg (T: ordered_field) : linalg with t = T.t = {
         in V with [:i, i - 1] = (matmul V[:i, :i] a)[:, 0]
     in (D, matmul U V)
 
-  --THIS ONE!!!
-
   def matsqrt [n] (A: [n][n]t) : [n][n]t =
-    -- let (D, E) = eig 30 A --get eigenvalues, vectors
+    --get eigenvalues, vectors
     let (D, E) = eig A
     --get eigenvalues, vectors
     let sqrtD = map (\i -> map (\j -> if i == j then T.sqrt D[i, j] else T.i64 0) (0..<n)) (0..<n)
     in matmul (matmul E sqrtD) (inv E)
-
-  def mat [m] [n] (v: t) : [m][n]t =
-    tabulate_2d m n (\_ _ -> v)
-
-  def i64 [m] [n] (v: i64) : [m][n]t =
-    tabulate_2d m n (\_ _ -> T.i64 v)
-
-  def f64 [m] [n] (v: f64) : [m][n]t =
-    tabulate_2d m n (\_ _ -> T.f64 v)
 }
