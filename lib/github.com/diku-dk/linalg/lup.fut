@@ -40,6 +40,7 @@ local module type lup = {
 
 }
 
+-- | LU-decomposition module parameterised over an ordered field.
 module mk_lup (T: ordered_field) : lup with t = T.t
 = {
 
@@ -69,7 +70,7 @@ module mk_lup (T: ordered_field) : lup with t = T.t
     let pv = copy(mat[jp][j])
     let mat = swap mat jp j
     let p = swap p jp j
-    let mat[j+1:,j] = map (\v -> v T./ pv) mat[j+1:,j]
+    let mat[j+1:,j] = map (T./ pv) mat[j+1:,j]
     let mat[j+1:,j+1:] =
       tabulate_2d (m-j-1) (m-j-1)
 		  (\r c ->
@@ -82,10 +83,6 @@ module mk_lup (T: ordered_field) : lup with t = T.t
   -- `permute p a = LU`.
   def lup [m] (mat:*[m][m]t) : ([m][m]t, [m]i64) =
     loop (mat, p) = (mat, iota m) for j < m do step mat p j
-
-  -- Function for transforming index changes to a permutation
-  -- def perm [m] (v:[m]i64) : [m]i64 =
-  --   loop p = iota m for i < m do swap p i v[i]
 
   -- reads only lower part of L and assumes implicit diagonal elements are 1
   def forsolve [n] (L:[n][n]t) (b:[n]t) : [n]t =
@@ -106,6 +103,6 @@ module mk_lup (T: ordered_field) : lup with t = T.t
 
   def ols [n] (a: *[n][n]t) (b:*[n]t) : *[n]t =
     let (LU,p) = lup a
-    in backsolve LU (forsolve LU (permute p b))
+    in backsolve LU (forsolve LU (permute_inv p b))
 
 }
