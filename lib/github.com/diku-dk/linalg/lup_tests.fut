@@ -39,6 +39,8 @@ entry test_ols [m] (a:*[m][m]t) (b:*[m]t) : [m]t = lup64.ols a b
 -- output { [6.0,-2.0,3.0] }
 -- input { [[2.0]] [8.0] }
 -- output { [4.0] }
+-- input { [[0f64,5,7.333],[4f64,2,1],[2f64,7,9]] [3f64,8,3] }
+-- output { [9.120493991989331,-21.917890520694296,15.353805073431268] }
 
 import "linalg"
 module linalg = mk_linalg f64
@@ -61,3 +63,5 @@ entry test_ols_eq [m] (a:*[m][m]t) (b:*[m]t) : bool =
 -- output { true }
 -- random input { [5][5]f64 [5]f64 } output { true }
 -- random input { [20][20]f64 [20]f64 } output { true }
+-- input { [[0f64,5,7.333],[4f64,2,1],[2f64,7,9]] [3f64,8,3] }
+-- output { true }
