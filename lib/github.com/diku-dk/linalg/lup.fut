@@ -59,10 +59,10 @@ module mk_lup (T: ordered_field) : lup with t = T.t
   type perm[m] = *[m]i64
 
   def permute 'a [m] (p:perm[m]) (v:*[m]a) : *[m]a =
-    scatter (copy v) p v
+    map (\i -> v[i]) p
 
   def permute_inv 'a [m] (p:perm[m]) (v:*[m]a) : *[m]a =
-    map (\i -> v[i]) p
+    scatter (copy v) p v
 
   def step [m] (mat:*[m][m]t) (p:*[m]i64) (j:i64) : (*[m][m]t, *[m]i64) =
     let jp = reduce (\(a:(i64,t)) (b:(i64,t)) : (i64,t) -> if a.1 T.> b.1 then a else b) (-1,z)
@@ -103,6 +103,6 @@ module mk_lup (T: ordered_field) : lup with t = T.t
 
   def ols [n] (a: *[n][n]t) (b:*[n]t) : *[n]t =
     let (LU,p) = lup a
-    in backsolve LU (forsolve LU (permute_inv p b))
+    in backsolve LU (forsolve LU (permute p b))
 
 }

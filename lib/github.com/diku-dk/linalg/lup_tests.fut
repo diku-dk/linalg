@@ -21,7 +21,7 @@ entry test_lup = lup64.lup
 
 entry test_solve [m] (a:*[m][m]t) (b:*[m]t) : [m]t =
   let (lu,p) = lup64.lup a
-  let pb = lup64.permute_inv p b
+  let pb = lup64.permute p b
   let y = lup64.forsolve lu pb
   let x = lup64.backsolve lu y
   in x
