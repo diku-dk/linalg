@@ -1,6 +1,6 @@
 FUTHARK?=futhark
 
-TESTS=lu_tests.fut linalg_tests.fut qr_tests.fut nmf_tests.fut lup_tests.fut
+TESTS=lu_tests.fut linalg_tests.fut qr_tests.fut nmf_tests.fut lup_tests.fut perm_tests.fut
 
 .PHONY: test
 test: $(TESTS)
@@ -12,4 +12,4 @@ doc:
 
 .PHONY: clean
 clean:
-	rm -rf *~ *.c lu_tests linalg_tests nmf_tests qr_tests linalg lup_tests nmf lu qr *.actual *.expected doc
+	rm -rf *~ *.c lu_tests linalg_tests nmf_tests qr_tests linalg lup_tests perm_tests nmf lu qr *.actual *.expected doc
