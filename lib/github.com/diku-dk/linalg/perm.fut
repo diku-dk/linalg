@@ -1,6 +1,7 @@
---| Permutations. Permutations can be constructed using the `id` and `mk`
---| constructors and manipulated using a series of other constructors, which all
---| guarantee that compositions are safe.
+-- | Permutations. Permutations can be constructed using the `id` and `mk`
+-- constructors and manipulated using a series of other constructors, which all
+-- guarantee that compositions are safe. The only way to inspect a permutation
+-- is by applying it, using the `permute` function.
 
 local module type perm = {
 
