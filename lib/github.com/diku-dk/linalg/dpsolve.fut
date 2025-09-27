@@ -10,7 +10,7 @@
 --
 -- For more details, see Rust's description in Section 4 of
 -- https://editorialexpress.com/jrust/sdp/ndp.pdf and a demonstration of its use
--- in https://elsman.com/pdf/dpsolver_demo.pdf.
+-- in https://elsman.com/pdf/dpsolve-2025-09-27.pdf.
 
 import "lu"
 
