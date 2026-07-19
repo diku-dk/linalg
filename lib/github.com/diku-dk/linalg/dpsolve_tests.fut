@@ -160,9 +160,8 @@ def eqv_eps [n] (eps: f64) (x: [n]f64) (y: [n]f64) =
   map2 (\a b -> f64.abs (a - b) < eps) x y |> reduce (&&) true
 
 entry test_jacobi [n] (A: [n][n]f64) (b: [n]f64) (k: i64) : [n]f64 =
-  let pow f k x = loop x for _i < k do f x
   let f = jacobi A b
-  in pow f k (replicate n 1f64)
+  in iterate (i32.i64 k) f (replicate n 1f64)
 
 -- ==
 -- entry: test_jacobi
