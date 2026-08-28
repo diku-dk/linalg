@@ -129,19 +129,19 @@ module type ordered_linalg = {
 module type field = {
   type t
 
-  val (+) : t -> t -> t
-  val (-) : t -> t -> t
-  val (*) : t -> t -> t
-  val (/) : t -> t -> t
-  val (**) : t -> t -> t
+  val (+) : t -> t -> *t
+  val (-) : t -> t -> *t
+  val (*) : t -> t -> *t
+  val (/) : t -> t -> *t
+  val (**) : t -> t -> *t
 
-  val neg : t -> t
+  val neg : t -> *t
 
-  val i64 : i64 -> t
-  val f64 : f64 -> t
-  val abs : t -> t
-  val fma : t -> t -> t -> t
-  val sqrt : t -> t
+  val i64 : i64 -> *t
+  val f64 : f64 -> *t
+  val abs : t -> *t
+  val fma : t -> t -> t -> *t
+  val sqrt : t -> *t
   val isnan : t -> bool
   val isinf : t -> bool
 }
