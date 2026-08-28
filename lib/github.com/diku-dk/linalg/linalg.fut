@@ -129,11 +129,11 @@ module type ordered_linalg = {
 module type field = {
   type t
 
-  val + : t -> t -> t
-  val - : t -> t -> t
-  val * : t -> t -> t
-  val / : t -> t -> t
-  val ** : t -> t -> t
+  val (+) : t -> t -> t
+  val (-) : t -> t -> t
+  val (*) : t -> t -> t
+  val (/) : t -> t -> t
+  val (**) : t -> t -> t
 
   val neg : t -> t
 
@@ -150,12 +150,12 @@ module type field = {
 module type ordered_field = {
   include field
 
-  val == : t -> t -> bool
-  val < : t -> t -> bool
-  val > : t -> t -> bool
-  val <= : t -> t -> bool
-  val >= : t -> t -> bool
-  val != : t -> t -> bool
+  val (==) : t -> t -> bool
+  val (<) : t -> t -> bool
+  val (>) : t -> t -> bool
+  val (<=) : t -> t -> bool
+  val (>=) : t -> t -> bool
+  val (!=) : t -> t -> bool
 }
 
 -- | Given some numeric type, produce a linalg module.
